@@ -4,6 +4,7 @@ export interface Habit {
   description: string | null;
   frequency: number;
   user_id: string;
+  created_at: string;
 }
 
 export interface HabitLog {
@@ -12,6 +13,17 @@ export interface HabitLog {
   user_id: string;
   date: string;
   status: 'completed' | 'partial' | 'skipped';
+  created_at: string;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: 'trophy' | 'star' | 'flame' | 'target' | 'award';
+  unlocked: boolean;
+  progress: number;
+  target: number;
 }
 
 export interface Stats {
@@ -19,17 +31,4 @@ export interface Stats {
   completedToday: number;
   weeklyProgress: number;
   currentStreak: number;
-  trends?: {
-    [key in keyof Stats]?: number;
-  }
-}
-
-export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  icon: string;
-  target: number;
-  unlocked?: boolean;
-  progress?: number;
 } 

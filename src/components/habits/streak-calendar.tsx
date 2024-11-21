@@ -48,7 +48,7 @@ export function StreakCalendar({ logs, loading = false }: StreakCalendarProps) {
         <CardTitle className="text-lg">Activity Calendar</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-[repeat(53,1fr)] gap-1">
+        <div className="grid grid-cols-53 gap-1">
           {days.map((day, i) => {
             const status = getStatusForDay(day);
             return (
@@ -74,4 +74,6 @@ export function StreakCalendar({ logs, loading = false }: StreakCalendarProps) {
       </CardContent>
     </Card>
   );
-} 
+}
+
+export default StreakCalendar;
