@@ -38,12 +38,4 @@ export function calculateWeeklyProgress(logs: HabitLog[], totalHabits: number): 
   });
 
   return Math.round((weeklyLogs.length / (totalHabits * 7)) * 100);
-}
-
-export const formatDate = (date: Date): string => {
-  return date.toISOString().split('T')[0];
-};
-
-export const isToday = (date: string): boolean => {
-  return isSameDay(new Date(date), new Date());
-}; 
+} 
