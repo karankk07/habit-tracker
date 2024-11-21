@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Habit } from '@/types/habit';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
 export function useRealtimeSync(userId?: string) {

@@ -1,6 +1,5 @@
 'use client'
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { CheckCircle, TrendingUp, Flame, Trophy } from 'lucide-react'
 import { useAuth } from '@/components/providers/auth-provider'
 import { useStats } from '@/hooks/use-stats'

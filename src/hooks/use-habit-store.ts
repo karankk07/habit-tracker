@@ -30,9 +30,9 @@ export function useHabitStore(userId?: string) {
 
       toast.success('Progress updated');
       return data;
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error('Error logging progress:', error);
-      toast.error(error.message || 'Failed to log progress');
+      toast.error(error instanceof Error ? error.message : 'Failed to log progress');
       return null;
     } finally {
       setLoading(false);

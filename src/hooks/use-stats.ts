@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClientSupabase } from '@/lib/supabase';
 import { Stats } from '@/types/habit';
 import { calculateStreak, calculateWeeklyProgress } from '@/lib/utils/habit';
@@ -55,7 +55,7 @@ export function useStats(userId: string | undefined) {
     return trends;
   };
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     if (!userId) return;
 
     setLoading(true);
@@ -134,11 +134,11 @@ export function useStats(userId: string | undefined) {
       setStats({ ...currentStats, trends });
     } catch (error) {
       console.error('Error fetching stats:', error);
-      setError(error as Error);
+      setError(error instanceof Error ? error : new Error('Unknown error'));
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   useEffect(() => {
     if (userId) {

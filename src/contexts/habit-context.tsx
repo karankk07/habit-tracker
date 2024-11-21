@@ -11,7 +11,7 @@ interface HabitContextType {
   refreshAchievements: () => Promise<void>;
 }
 
-const HabitContext = createContext<HabitContextType | null>(null);
+const HabitContext = createContext<HabitContextType | undefined>(undefined);
 
 export function HabitProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -25,12 +25,14 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     ]);
   }, [refreshStats, refreshAchievements]);
 
+  const value = {
+    refreshAll,
+    refreshStats: async () => { await refreshStats(); },
+    refreshAchievements: async () => { await refreshAchievements(); },
+  };
+
   return (
-    <HabitContext.Provider value={{
-      refreshAll,
-      refreshStats: async () => { await refreshStats(); },
-      refreshAchievements: async () => { await refreshAchievements(); return; },
-    }}>
+    <HabitContext.Provider value={value}>
       {children}
     </HabitContext.Provider>
   );

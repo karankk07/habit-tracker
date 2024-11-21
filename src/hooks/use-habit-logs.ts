@@ -44,7 +44,7 @@ export function useHabitLogs(habitId: string, userId?: string) {
 
   useEffect(() => {
     fetchLogs();
-  }, [habitId, userId]);
+  }, [habitId, userId, fetchLogs]);
 
   return { weeklyLogs, todayLog, loading, refresh: fetchLogs };
 } 
