@@ -1,0 +1,11 @@
+/* Add this CSS to make the main section scrollable */
+body, html, #__next {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-height: 100%;
+    overflow-y: auto;
+  }
