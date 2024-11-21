@@ -34,7 +34,7 @@ export function useHabitLogs(habitId: string, userId?: string) {
       });
 
       setWeeklyLogs(filteredLogs);
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error('Error fetching habit logs:', error);
       toast.error('Failed to load habit logs');
     } finally {

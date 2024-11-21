@@ -10,7 +10,6 @@ import { EditHabitDialog } from './edit-habit-dialog';
 import { HabitProgress } from './habit-progress';
 import { WeeklyProgress } from './weekly-progress';
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
-import { useAuth } from '@/components/providers/auth-provider';
 
 interface HabitCardProps {
   habit: {

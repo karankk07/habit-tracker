@@ -1,23 +1,17 @@
 import { useState, useEffect } from 'react';
 import { createClientSupabase } from '@/lib/supabase';
+import { Stats } from '@/types/habit';
 import { calculateStreak, calculateWeeklyProgress } from '@/lib/utils/habit';
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 
-interface BaseStats {
-  totalHabits: number;
-  completedToday: number;
-  weeklyProgress: number;
-  currentStreak: number;
-}
-
-interface Stats extends BaseStats {
+interface StatsWithTrends extends Stats {
   trends?: {
-    [K in keyof BaseStats]?: number;
+    [K in keyof Stats]?: number;
   };
 }
 
 export function useStats(userId: string | undefined) {
-  const [stats, setStats] = useState<Stats>({
+  const [stats, setStats] = useState<StatsWithTrends>({
     totalHabits: 0,
     completedToday: 0,
     weeklyProgress: 0,
@@ -32,7 +26,7 @@ export function useStats(userId: string | undefined) {
     previousWeekLogs: any[],
     previousWeekHabits: number
   ) => {
-    const trends: Stats['trends'] = {};
+    const trends: StatsWithTrends['trends'] = {};
 
     // Calculate previous week's stats
     const prevStats = {
@@ -149,13 +143,11 @@ export function useStats(userId: string | undefined) {
   useEffect(() => {
     if (userId) {
       fetchStats();
-      const interval = setInterval(fetchStats, 60000); // Refresh every minute
-      return () => clearInterval(interval);
     }
-  }, [userId]);
+  }, [userId, fetchStats]);
 
   return {
-    stats: stats as Stats & { trends?: { [K in keyof Stats]?: number } },
+    stats,
     loading,
     error,
     refresh: fetchStats,

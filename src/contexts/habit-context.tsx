@@ -19,11 +19,10 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   const { recalculate: refreshAchievements } = useAchievements(user?.id);
 
   const refreshAll = useCallback(async () => {
-    const [stats, achievements] = await Promise.all([
+    await Promise.all([
       refreshStats(),
       refreshAchievements(),
     ]);
-    return;
   }, [refreshStats, refreshAchievements]);
 
   return (
