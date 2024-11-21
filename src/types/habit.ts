@@ -20,10 +20,10 @@ export interface Achievement {
   id: string;
   title: string;
   description: string;
-  icon: 'trophy' | 'star' | 'flame' | 'target' | 'award';
-  unlocked: boolean;
-  progress: number;
+  icon: string;
   target: number;
+  unlocked?: boolean;
+  progress?: number;
 }
 
 export interface Stats {

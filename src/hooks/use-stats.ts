@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createClientSupabase } from '@/lib/supabase';
-import { Stats } from '@/types/habit';
+import { Stats, HabitLog } from '@/types/habit';
 import { calculateStreak, calculateWeeklyProgress } from '@/lib/utils/habit';
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 

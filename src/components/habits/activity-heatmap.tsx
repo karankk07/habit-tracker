@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { createClientSupabase } from '@/lib/supabase';
-import { subDays, format, parseISO } from 'date-fns';
+import { subDays, format } from 'date-fns';
 import { useAuth } from '@/components/providers/auth-provider';
 import { cn } from '@/lib/utils';
 
@@ -23,13 +23,7 @@ export function ActivityHeatmap({ habitId }: ActivityHeatmapProps) {
   const [loading, setLoading] = useState(true);
   const supabase = createClientSupabase();
 
-  useEffect(() => {
-    if (user) {
-      fetchActivities();
-    }
-  }, [user, habitId]);
-
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -52,15 +46,15 @@ export function ActivityHeatmap({ habitId }: ActivityHeatmapProps) {
 
       if (error) throw error;
 
-      // Group by date and count
       const grouped = (data || []).reduce<Record<string, number>>((acc, log) => {
         acc[log.date] = (acc[log.date] || 0) + 1;
         return acc;
       }, {});
 
-      const activities = Object.entries(grouped).map(([date, count]) => ({
+      const activities: DayActivity[] = Object.entries(grouped).map(([date, count]) => ({
         date,
         count,
+        status: 'completed',
       }));
 
       setActivities(activities);
@@ -69,7 +63,13 @@ export function ActivityHeatmap({ habitId }: ActivityHeatmapProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, habitId, supabase]);
+
+  useEffect(() => {
+    if (user) {
+      fetchActivities();
+    }
+  }, [user, fetchActivities]);
 
   if (loading) {
     return (

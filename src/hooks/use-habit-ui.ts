@@ -1,28 +1,28 @@
 import { useState } from 'react';
+import { HabitLog } from '@/types/habit';
+
+interface HabitUI {
+  selectedDate: Date;
+  selectedStatus: HabitLog['status'] | null;
+}
 
 export function useHabitUI() {
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [ui, setUI] = useState<HabitUI>({
+    selectedDate: new Date(),
+    selectedStatus: null,
+  });
 
-  const startLoading = () => setLoading(true);
-  const stopLoading = () => setLoading(false);
+  const setSelectedDate = (date: Date) => {
+    setUI(prev => ({ ...prev, selectedDate: date }));
+  };
 
-  const openEditDialog = () => setShowEditDialog(true);
-  const closeEditDialog = () => setShowEditDialog(false);
-
-  const openDeleteDialog = () => setShowDeleteDialog(true);
-  const closeDeleteDialog = () => setShowDeleteDialog(false);
+  const setSelectedStatus = (status: HabitLog['status'] | null) => {
+    setUI(prev => ({ ...prev, selectedStatus: status }));
+  };
 
   return {
-    loading,
-    startLoading,
-    stopLoading,
-    showEditDialog,
-    showDeleteDialog,
-    openEditDialog,
-    closeEditDialog,
-    openDeleteDialog,
-    closeDeleteDialog,
+    ...ui,
+    setSelectedDate,
+    setSelectedStatus,
   };
 } 

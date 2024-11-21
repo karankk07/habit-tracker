@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { supabase } from '@/lib/supabase';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -21,11 +21,7 @@ export function CalendarView({ habitId }: CalendarViewProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [logs, setLogs] = useState<Record<string, DayStatus>>({});
 
-  useEffect(() => {
-    fetchMonthLogs();
-  }, [currentDate, habitId]);
-
-  const fetchMonthLogs = async () => {
+  const fetchMonthLogs = useCallback(async () => {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
@@ -53,7 +49,11 @@ export function CalendarView({ habitId }: CalendarViewProps) {
     });
 
     setLogs(logsByDate);
-  };
+  }, [currentDate, habitId]);
+
+  useEffect(() => {
+    fetchMonthLogs();
+  }, [fetchMonthLogs]);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();

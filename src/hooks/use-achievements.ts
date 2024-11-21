@@ -1,8 +1,39 @@
 import { useState, useEffect } from 'react';
 import { createClientSupabase } from '@/lib/supabase';
-import { HabitLog } from '@/types/habit';
+import { HabitLog, Achievement } from '@/types/habit';
 import { calculateStreak } from '@/lib/utils/habit';
 import { startOfWeek, endOfWeek } from 'date-fns';
+
+const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlocked' | 'progress'>[] = [
+  {
+    id: '1',
+    title: 'Getting Started',
+    description: 'Complete your first habit',
+    icon: 'trophy',
+    target: 1,
+  },
+  {
+    id: '2',
+    title: 'Habit Master',
+    description: 'Complete 100 habits',
+    icon: 'star',
+    target: 100,
+  },
+  {
+    id: '3',
+    title: 'Perfect Week',
+    description: 'Complete all habits for a week',
+    icon: 'flame',
+    target: 1,
+  },
+  {
+    id: '4',
+    title: 'Consistency King',
+    description: 'Maintain a 30-day streak',
+    icon: 'target',
+    target: 30,
+  },
+];
 
 export function useAchievements(userId: string | undefined) {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -92,7 +123,7 @@ export function useAchievements(userId: string | undefined) {
 
       fetchAchievements();
     }
-  }, [userId]);
+  }, [userId, calculateAchievements]);
 
   return {
     achievements,
