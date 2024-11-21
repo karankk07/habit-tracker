@@ -14,6 +14,7 @@ interface ActivityHeatmapProps {
 interface DayActivity {
   date: string;
   count: number;
+  status: 'completed' | 'partial' | 'skipped';
 }
 
 export function ActivityHeatmap({ habitId }: ActivityHeatmapProps) {
