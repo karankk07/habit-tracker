@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { createClientSupabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import type { Database } from '@/types/database';
@@ -33,7 +33,8 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         .from('habits')
         .select('*')
         .order('created_at', { ascending: false });
-
+      console.log(data);
+      console.log(error);
       if (error) throw error;
       setHabits(data || []);
     } catch (err) {
@@ -43,6 +44,10 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     }
   }, [supabase]);
+
+  useEffect(() => {
+    fetchHabits();
+  }, [fetchHabits]);
 
   return (
     <HabitContext.Provider
