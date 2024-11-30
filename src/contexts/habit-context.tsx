@@ -15,6 +15,7 @@ export interface HabitContextType {
   createHabit: (habit: Omit<Habit, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
   updateHabit: (id: string, habit: Partial<Habit>) => Promise<void>;
   deleteHabit: (id: string) => Promise<void>;
+  refreshAll: () => Promise<void>;
 }
 
 const HabitContext = createContext<HabitContextType | undefined>(undefined);
@@ -53,6 +54,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         createHabit: async () => {},
         updateHabit: async () => {},
         deleteHabit: async () => {},
+        refreshAll: fetchHabits,
       }}
     >
       {children}

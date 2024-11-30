@@ -8,14 +8,8 @@ import { HabitCard } from '@/components/habits/habit-card';
 import { CreateHabitDialog } from '@/components/habits/create-habit-dialog';
 import { useAuth } from '@/components/providers/auth-provider';
 import { toast } from 'sonner';
-
-interface Habit {
-  id: string;
-  name: string;
-  description: string | null;
-  frequency: number;
-  created_at: string;
-}
+import type { Database } from '@/types/database'
+type Habit = Database['public']['Tables']['habits']['Row']
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
