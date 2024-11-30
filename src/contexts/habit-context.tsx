@@ -1,38 +1,60 @@
 'use client';
 
-import React, { createContext, useContext, useCallback } from 'react';
-import { useStats } from '@/hooks/use-stats';
-import { useAchievements } from '@/hooks/use-achievements';
-import { useAuth } from '@/components/providers/auth-provider';
+import { createContext, useContext, useState, useCallback } from 'react';
+import { createClientSupabase } from '@/lib/supabase';
+import { toast } from 'sonner';
+import type { Database } from '@/types/database';
 
-interface HabitContextType {
-  refreshAll: () => Promise<void>;
-  refreshStats: () => Promise<void>;
-  refreshAchievements: () => Promise<void>;
+type Habit = Database['public']['Tables']['habits']['Row'];
+
+export interface HabitContextType {
+  habits: Habit[];
+  loading: boolean;
+  error: Error | null;
+  fetchHabits: () => Promise<void>;
+  createHabit: (habit: Omit<Habit, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  updateHabit: (id: string, habit: Partial<Habit>) => Promise<void>;
+  deleteHabit: (id: string) => Promise<void>;
 }
 
 const HabitContext = createContext<HabitContextType | undefined>(undefined);
 
 export function HabitProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  const { refresh: refreshStats } = useStats(user?.id);
-  const { recalculate: refreshAchievements } = useAchievements(user?.id);
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const supabase = createClientSupabase();
 
-  const refreshAll = useCallback(async () => {
-    await Promise.all([
-      refreshStats(),
-      refreshAchievements(),
-    ]);
-  }, [refreshStats, refreshAchievements]);
+  const fetchHabits = useCallback(async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('habits')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const value = {
-    refreshAll,
-    refreshStats: async () => { await refreshStats(); },
-    refreshAchievements: async () => { await refreshAchievements(); },
-  };
+      if (error) throw error;
+      setHabits(data || []);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch habits'));
+      toast.error('Failed to load habits');
+    } finally {
+      setLoading(false);
+    }
+  }, [supabase]);
 
   return (
-    <HabitContext.Provider value={value}>
+    <HabitContext.Provider
+      value={{
+        habits,
+        loading,
+        error,
+        fetchHabits,
+        createHabit: async () => {},
+        updateHabit: async () => {},
+        deleteHabit: async () => {},
+      }}
+    >
       {children}
     </HabitContext.Provider>
   );
@@ -40,7 +62,7 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
 
 export function useHabitContext() {
   const context = useContext(HabitContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useHabitContext must be used within a HabitProvider');
   }
   return context;

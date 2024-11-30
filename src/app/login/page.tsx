@@ -1,50 +1,56 @@
 // src/app/login/page.tsx
 "use client"
 
-import { useState } from "react"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { createClientSupabase } from '@/lib/supabase'
-import Link from "next/link"
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { useAuth } from '@/components/providers/auth-provider'
+import Link from 'next/link'
 import { toast } from 'sonner'
+import { z } from 'zod'
+
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+})
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const supabase = createClientSupabase()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const { signIn, loading } = useAuth()
+  const router = useRouter()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const validateForm = () => {
+    try {
+      loginSchema.parse({ email, password })
+      setErrors({})
+      return true
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {}
+        error.errors.forEach((err) => {
+          if (err.path) {
+            newErrors[err.path[0]] = err.message
+          }
+        })
+        setErrors(newErrors)
+      }
+      return false
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
+    if (!validateForm()) return
 
     try {
-      console.log('Attempting login...')
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: `${username.toLowerCase()}@example.com`,
-        password,
-      })
-
-      if (error) {
-        console.error('Login error:', error)
-        toast.error(error.message === 'Invalid login credentials' 
-          ? 'Invalid username or password'
-          : 'An error occurred during login'
-        )
-        return
-      }
-
-      if (data.session?.user) {
-        console.log('Login successful, user:', data.session.user.id)
-        toast.success('Login successful!')
-        // AuthProvider handles the redirect
-      }
+      await signIn(email, password)
+      router.push('/dashboard')
     } catch (error) {
-      console.error('Unexpected login error:', error)
-      toast.error('An unexpected error occurred')
-    } finally {
-      setLoading(false)
+      // Error is already handled in auth provider
     }
   }
 
@@ -52,45 +58,47 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Welcome back! Please login to your account</CardDescription>
+          <CardTitle>Welcome back</CardTitle>
+          <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
               <Input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                required
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
+                aria-label="Email"
               />
+              {errors.email && (
+                <p className="text-sm text-destructive mt-1">{errors.email}</p>
+              )}
             </div>
-            <div className="space-y-2">
+            <div>
               <Input
                 type="password"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 disabled={loading}
+                aria-label="Password"
               />
+              {errors.password && (
+                <p className="text-sm text-destructive mt-1">{errors.password}</p>
+              )}
             </div>
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={loading || !username || !password}
-            >
-              {loading ? "Logging in..." : "Login"}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Signing in...' : 'Sign in'}
             </Button>
-            <p className="text-sm text-center text-muted-foreground">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-primary hover:underline">
-                Sign up
-              </Link>
-            </p>
           </form>
+          <p className="text-sm text-center mt-4">
+            Don't have an account?{' '}
+            <Link href="/signup" className="text-primary hover:underline">
+              Sign up
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </div>

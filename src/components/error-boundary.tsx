@@ -1,6 +1,9 @@
 'use client';
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { AlertTriangle } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -23,24 +26,51 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
+    
+    // Report to your error tracking service
+    if (process.env.NODE_ENV === 'production') {
+      // Add error reporting service here
+      // Example: Sentry.captureException(error)
+    }
+  }
+
+  // Add error recovery logic
+  private resetError = () => {
+    this.setState({ hasError: false, error: null });
+    
+    // Check if we're on a page that should redirect to dashboard
+    const path = window.location.pathname;
+    if (path.startsWith('/dashboard')) {
+      window.location.href = '/dashboard';
+    } else {
+      window.location.reload();
+    }
   }
 
   public render() {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center p-4">
-          <div className="text-center space-y-4">
-            <h1 className="text-2xl font-bold">Something went wrong</h1>
-            <p className="text-muted-foreground">
-              {this.state.error?.message || 'An unexpected error occurred'}
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 rounded bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              Reload page
-            </button>
-          </div>
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                Something went wrong
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                {this.state.error?.message || 'An unexpected error occurred'}
+              </p>
+              <Button
+                onClick={() => {
+                  this.resetError();
+                }}
+              >
+                Try again
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       );
     }

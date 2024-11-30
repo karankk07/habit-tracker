@@ -2,23 +2,13 @@
 
 import { Sidebar } from '@/components/dashboard/sidebar';
 import { Header } from '@/components/dashboard/header';
-import { useEffect, useState } from 'react';
+import { ClientOnly } from '@/components/providers/client-only';
 
-export default function DashboardLayout({
+function DashboardClientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null; // or a loading spinner
-  }
-
   return (
     <div className="min-h-screen flex">
       <Sidebar />
@@ -27,5 +17,17 @@ export default function DashboardLayout({
         <main className="p-6">{children}</main>
       </div>
     </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <ClientOnly>
+      <DashboardClientLayout>{children}</DashboardClientLayout>
+    </ClientOnly>
   );
 } 

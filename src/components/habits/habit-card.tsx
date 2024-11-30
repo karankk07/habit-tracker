@@ -10,15 +10,13 @@ import { EditHabitDialog } from './edit-habit-dialog';
 import { HabitProgress } from './habit-progress';
 import { WeeklyProgress } from './weekly-progress';
 import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
+import type { Database } from '@/types/database'
+
+type Habit = Database['public']['Tables']['habits']['Row']
 
 interface HabitCardProps {
-  habit: {
-    id: string;
-    name: string;
-    description: string | null;
-    frequency: number;
-  };
-  onUpdate: () => void;
+  habit: Habit
+  onUpdate: () => Promise<void>
 }
 
 export function HabitCard({ habit, onUpdate }: HabitCardProps) {
