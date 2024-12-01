@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import type { User, AuthError } from '@supabase/supabase-js'
+import type { User, AuthError, Session } from '@supabase/supabase-js'
 import { toast } from 'sonner'
 import { createClientSupabase } from '@/lib/supabase'
 
@@ -13,10 +13,13 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string) => Promise<void>
-  signOut: () => Promise<void>
-  refreshSession: () => Promise<void>
+  signIn: (email: string, password: string) => Promise<{
+    data: { user: User | null; session: Session | null } | null;
+    error: AuthError | null;
+  }>;
+  signUp: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -80,30 +83,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      setState(prev => ({ ...prev, loading: true, error: null }))
-      const { error } = await supabase.auth.signInWithPassword({
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
-      })
-      if (error) throw error
+      });
+
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          toast.error('Please verify your email before logging in.');
+        } else {
+          toast.error(error.message || 'Failed to sign in');
+        }
+        setState(prev => ({ ...prev, error: error as AuthError }));
+        return { data: null, error };
+      }
+
+      // If login successful
+      if (data.user) {
+        toast.success('Successfully logged in!');
+      }
+
+      return { data, error: null };
     } catch (error) {
-      setState(prev => ({ ...prev, error: error as AuthError }))
-      toast.error(error instanceof Error ? error.message : 'Failed to sign in')
-      throw error
+      setState(prev => ({ ...prev, error: error as AuthError }));
+      return { data: null, error: error as AuthError };
     } finally {
-      setState(prev => ({ ...prev, loading: false }))
+      setState(prev => ({ ...prev, loading: false }));
     }
-  }
+  };
 
   const signUp = async (email: string, password: string) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }))
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
       })
+      
       if (error) throw error
+
+      // If we get here, signup was successful
       toast.success('Verification email sent! Please check your inbox.')
+      router.push("/login?message=verification-email-sent")
     } catch (error) {
       setState(prev => ({ ...prev, error: error as AuthError }))
       toast.error(error instanceof Error ? error.message : 'Failed to sign up')

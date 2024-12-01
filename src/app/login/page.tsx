@@ -1,8 +1,8 @@
 // src/app/login/page.tsx
 "use client"
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +22,16 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const { signIn, loading } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const message = searchParams.get('message')
+  const redirectTo = searchParams.get('redirectTo') || '/dashboard'
+
+  useEffect(() => {
+    // Show message if coming from email verification
+    if (message === 'verification-email-sent') {
+      toast.info('Please verify your email before logging in.')
+    }
+  }, [message])
 
   const validateForm = () => {
     try {
@@ -47,10 +57,22 @@ export default function LoginPage() {
     if (!validateForm()) return
 
     try {
-      await signIn(email, password)
-      router.push('/dashboard')
+      const { data, error } = await signIn(email, password)
+      
+      if (error) {
+        if (error.message.includes('Email not confirmed')) {
+          toast.error('Please verify your email before logging in.')
+          return
+        }
+        throw error
+      }
+
+      if (data?.user) {
+        router.push(redirectTo)
+      }
     } catch (error) {
       // Error is already handled in auth provider
+      console.error('Login error:', error)
     }
   }
 
