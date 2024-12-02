@@ -1,33 +1,35 @@
 'use client'
 
-import { Sidebar } from '@/components/dashboard/sidebar';
-import { Header } from '@/components/dashboard/header';
-import { ClientOnly } from '@/components/providers/client-only';
+import { Header } from '@/components/layouts/header'
+import { Navigation } from '@/components/layouts/navigation'
+import { ClientOnly } from '@/components/providers/client-only'
 
 function DashboardClientLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex">
-      <Sidebar />
-      <div className="flex-1">
-        <Header />
-        <main className="p-6">{children}</main>
-      </div>
+    <div className="min-h-screen">
+      <Header />
+      <Navigation />
+      <main className="md:pl-64 pt-16">
+        <div className="container mx-auto p-6 pb-24">
+          {children}
+        </div>
+      </main>
     </div>
-  );
+  )
 }
 
 export default function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <ClientOnly>
       <DashboardClientLayout>{children}</DashboardClientLayout>
     </ClientOnly>
-  );
+  )
 } 
