@@ -102,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // If login successful
       if (data.user) {
         toast.success('Successfully logged in!');
+        router.push('/dashboard');
       }
 
       return { data, error: null };
